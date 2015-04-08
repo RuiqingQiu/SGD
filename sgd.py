@@ -1,10 +1,14 @@
 import math
-import os.path
 import numpy as np
 import re
+import os.path
 
 # test result function
 def frobenius_norm(M1, M2):
+    # print "M1 is"
+    # print M1
+    # print "M2 is"
+    # print M2
     total = 0.0
     for a,b in zip(M1, M2):
         for c, d in zip(a, b):
@@ -14,17 +18,18 @@ def frobenius_norm(M1, M2):
 # dimension of each example in the dataset
 d = 15
 # k is the top pricipal calculated by the eigenvectors, right now just fix it
-k = 5
+k = 2
 # fix the learning rate
-learning_rate = 0.001
+learning_rate = 0.01
 # preprocess the data
 data_set = []
 data_set_done = []
 if os.path.exists('new_data'):
     with open('new_data') as data:
         for line in data:
-            data_set_done.append(map(float, line.split()))
-
+            #data_set_done.append(map(float, line.split()))
+            data_set_done.append([map(float, line.split())[0], map(float, line.split())[1], map(float, line.split())[2], map(float, line.split())[3]])
+    print data_set_done
 else:
     with open('adult.data.txt') as data:
         for line in data:
@@ -111,39 +116,73 @@ for vector in data_set_done:
     f.write("\n")
 f.close()
 
+data_set = [[1,2],[2,4],[3,6]]
+data_set_done = []
+for d in data_set:
+    d = [float(i)/sum(d) for i in d]
+    data_set_done.append(d)
+print data_set_done
 # U and V are d x k dimension matrix
 v = np.random.rand(len(data_set_done[0]),k)
+
 print "V start with, ", v
 u = np.random.rand(len(data_set_done[0]),k)
 print "U start with, ", u
 
 print "result of the caulcation is ", np.transpose(data_set_done[0])
 
-M = np.array(data_set_done[0]) * np.transpose(np.array(data_set_done[0]))
+# data set size
+N = len(data_set_done)
+M = np.array(data_set_done[0]) * np.transpose(np.array(data_set_done[0])) / N
 for i in range(1, len(data_set_done)):
-    M = M + np.array([data_set_done[i]]) * np.transpose(np.array([data_set_done[i]]))
-M = M / len(data_set_done)
+    M = M + (np.array([data_set_done[i]]) * np.transpose(np.array([data_set_done[i]]))) / N
 print "M is "
 print M
+
+U, s, V = np.linalg.svd(M, full_matrices=True)
+
+print "U is", U
+
+print "V is", V
+distance = []
+distance.append(frobenius_norm(M, np.dot(U,np.transpose(V))))
+print distance
+
 # SGD function
 # run the whole optimization process 10 times
-for j in range(0, 10):
+for j in range(0, 20):
     # do u 100 rounds
-    for counter in range (0,10):
-        print counter
+    #for counter in range (0,10):
+        #print counter
         # update u len(data_set) iterations
-        for t in range(0, len(data_set_done)):
+    for t in range(0, 2):
             #print (data_set[t] * np.transpose(data_set[t]) - np.dot(u,np.transpose(v)))
             # need to do np.dot() for matrix multiplication
-            u = u - learning_rate * np.dot((data_set_done[t] * np.transpose(data_set_done[t]) - np.dot(u,np.transpose(v))), v)
+        u = u + learning_rate * np.dot(M - np.dot(u,np.transpose(v)), v)
+        #u = u - learning_rate * np.dot((data_set_done[t] * np.transpose(data_set_done[t]) - np.dot(u,np.transpose(v))), v)
+            #print "u is"
+            #print u
     # do v 100 rounds
-    for counter in range (0,10):
-        print count
+    #for counter in range (0,10):
+        #print counter
         # update v len(data_set) iterations
-        for t in range(0, len(data_set_done)):
-            v = v - learning_rate * np.dot((data_set_done[t] * np.transpose(data_set_done[t]) - np.dot(u, np.transpose(v))), u)
-    print frobenius_norm(M, np.dot(u,np.transpose(v)))
+    for t in range(0, 2):
+        v = v + learning_rate * np.dot(M - np.dot(u, np.transpose(v)), u)
+        #v = v - learning_rate * np.dot((data_set_done[t] * np.transpose(data_set_done[t]) - np.dot(u, np.transpose(v))), u)
+            #print "v is "
+            #print v
+    print "u is"
+    print u
+    print "v is"
+    print v
+    # print "result is"
 
+    # print np.dot(u, np.transpose(v))
+    result = frobenius_norm(M, np.dot(u,np.transpose(v)))
+    print result
+    distance.append(result)
+print distance
 
 
 #print u * np.transpose(v)
+
