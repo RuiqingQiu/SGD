@@ -13,22 +13,26 @@ def frobenius_norm(M1, M2):
     for a,b in zip(M1, M2):
         for c, d in zip(a, b):
             total += (c - d)*(c - d)
+            # print "total, ", total
     return total
 
 # dimension of each example in the dataset
 d = 15
 # k is the top pricipal calculated by the eigenvectors, right now just fix it
-k = 2
+k = 5
 # fix the learning rate
-learning_rate = 0.000001
+#learning_rate = 0.00000000001
+learning_rate = 0.0000000000001
+
+print "lr, ", learning_rate
 # preprocess the data
 data_set = []
 data_set_done = []
 if os.path.exists('new_data'):
     with open('new_data') as data:
         for line in data:
-            #data_set_done.append(map(float, line.split()))
-            data_set_done.append([map(float, line.split())[0], map(float, line.split())[1], map(float, line.split())[2], map(float, line.split())[3]])
+            data_set_done.append(map(float, line.split()))
+            #data_set_done.append([map(float, line.split())[0], map(float, line.split())[1], map(float, line.split())[2], map(float, line.split())[3]])
     #print data_set_done
 else:
     with open('adult.data.txt') as data:
@@ -116,6 +120,7 @@ for vector in data_set_done:
     f.write("\n")
 f.close()
 
+print data_set_done[0]
 # U and V are d x k dimension matrix
 v = np.random.rand(len(data_set_done[0]),k)
 
@@ -123,40 +128,76 @@ print "V start with, ", v
 u = np.random.rand(len(data_set_done[0]),k)
 print "U start with, ", u
 
-print "result of the caulcation is ", np.transpose(data_set_done[0])
-
-# data set size
+# # data set size
 N = len(data_set_done)
-M = np.array(data_set_done[0]) * np.transpose(np.array(data_set_done[0])) / N
-for i in range(1, len(data_set_done)):
-    M = M + (np.array([data_set_done[i]]) * np.transpose(np.array([data_set_done[i]]))) / N
-print "Covariance Matrix is: ", M
-
-# U, s, V = np.linalg.svd(M, full_matrices=True)
-
 distance = []
-# distance.append(frobenius_norm(M, np.dot(U,np.transpose(V))))
+
+# M = np.array(data_set_done[0]) * np.transpose(np.array(data_set_done[0])) / N
+# for i in range(1, len(data_set_done)):
+#     M = M + (np.array([data_set_done[i]]) * np.transpose(np.array([data_set_done[i]]))) / N
+# print "Covariance Matrix is: ", M
+
+# # U, s, V = np.linalg.svd(M, full_matrices=True)
+
+# # distance.append(frobenius_norm(M, np.dot(U,np.transpose(V))))
 # print distance
 
-# SGD function
-# run the whole optimization process 10 times
-converged = False
-last_distance = 0.0
-while not converged:
-    for t in range(0, 100):
-        u = u + learning_rate * np.dot(M - np.dot(u,np.transpose(v)), v)
-    for t in range(0, 100):
-        v = v + learning_rate * np.dot(M - np.dot(u, np.transpose(v)), u)
-    result = frobenius_norm(M, np.dot(u,np.transpose(v)))
-    print result
-    print last_distance
-    if abs(result-last_distance) < 0.001:
-        print "converged"
-        converged = True
-    last_distance = result
-    distance.append(result)
-print distance
+# #SGD function
+# #run the whole optimization process 10 times
+# converged = False
+# last_distance = 0.0
+# while not converged:
+#     for t in range(0, 100):
+#         u = u + learning_rate * np.dot(M - np.dot(u,np.transpose(v)), v)
+#     for t in range(0, 100):
+#         v = v + learning_rate * np.dot(M - np.dot(u, np.transpose(v)), u)
+#     result = frobenius_norm(M, np.dot(u,np.transpose(v)))
+#     print result
+#     if abs(result-last_distance) < 0.001:
+#         print "converged"
+#         converged = True
+#     last_distance = result
+#     distance.append(result)
+# print distance
 
+#Stochastic gradient descent(SGD)
+#Apply random permutation to the data
+# permutated_data = np.random.permutation(data_set_done)
+# print permutated_data[0]
+# index = 0
+# #print permutated_data
+# converged = False
+# last_distance = 0.0
+# for i in range(0, 100):
+#     index = (index + 1) % N
+#     #M = np.array(permutated_data[index]) * np.transpose(np.array(permutated_data[index]))
+#     M = np.array([permutated_data[index]]) * np.transpose(np.array([permutated_data[index]]))
+#     for t in range(0, 100):
+#         u = u + learning_rate * np.dot(M - np.dot(u,np.transpose(v)), v)
+#     for t in range(0, 100):
+#         v = v + learning_rate * np.dot(M - np.dot(u, np.transpose(v)), u)
+#     #print np.dot(u, np.transpose(v))
+#     result = frobenius_norm(M, np.dot(u,np.transpose(v)))
+#     print result
+#     if abs(result-last_distance) < 0.001:
+#         print "converged"
+#         converged = True
+#     last_distance = result
+#     distance.append(result)
+# print distance
 
-#print u * np.transpose(v)
+def length(data):
+    sum = 0.0
+    for i in data:
+        sum += i * i
+    return math.sqrt(sum)
 
+# Normalize all data
+for data in data_set_done:
+    print length(data)
+
+d = len(data_set_done[0]) #shape
+theta = 2
+s = np.random.gamma(d, 2, d)
+
+print s
