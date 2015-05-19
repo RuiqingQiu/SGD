@@ -21,8 +21,8 @@ d = 15
 # k is the top pricipal calculated by the eigenvectors, right now just fix it
 k = 5
 # fix the learning rate
-#learning_rate = 0.00000000001
-learning_rate = 0.0000000000001
+learning_rate = 0.000000000001
+#learning_rate = 0.0000000000001
 
 print "lr, ", learning_rate
 # preprocess the data
@@ -132,33 +132,46 @@ print "U start with, ", u
 N = len(data_set_done)
 distance = []
 
-# M = np.array(data_set_done[0]) * np.transpose(np.array(data_set_done[0])) / N
-# for i in range(1, len(data_set_done)):
-#     M = M + (np.array([data_set_done[i]]) * np.transpose(np.array([data_set_done[i]]))) / N
-# print "Covariance Matrix is: ", M
 
-# # U, s, V = np.linalg.svd(M, full_matrices=True)
+M = np.array(data_set_done[0]) * np.transpose(np.array(data_set_done[0])) / N
+for i in range(1, len(data_set_done)):
+    M = M + (np.array([data_set_done[i]]) * np.transpose(np.array([data_set_done[i]]))) / N
+print "Covariance Matrix is: ", M
 
-# # distance.append(frobenius_norm(M, np.dot(U,np.transpose(V))))
-# print distance
+U, s, V = np.linalg.svd(M, full_matrices=True)
 
-# #SGD function
-# #run the whole optimization process 10 times
-# converged = False
-# last_distance = 0.0
-# while not converged:
-#     for t in range(0, 100):
-#         u = u + learning_rate * np.dot(M - np.dot(u,np.transpose(v)), v)
-#     for t in range(0, 100):
-#         v = v + learning_rate * np.dot(M - np.dot(u, np.transpose(v)), u)
-#     result = frobenius_norm(M, np.dot(u,np.transpose(v)))
-#     print result
-#     if abs(result-last_distance) < 0.001:
-#         print "converged"
-#         converged = True
-#     last_distance = result
-#     distance.append(result)
-# print distance
+print "U is", U
+print "V is", V
+distance = []
+S=np.diag(s)
+optimal = frobenius_norm(M, np.dot(U, np.dot(S,V)))
+print "optimal is ", optimal
+
+
+# U, s, V = np.linalg.svd(M, full_matrices=True)
+
+# distance.append(frobenius_norm(M, np.dot(U,np.transpose(V))))
+print distance
+
+#SGD function
+#run the whole optimization process 10 times
+converged = False
+last_distance = 0.0
+while not converged:
+    for t in range(0, 100):
+        u = u + learning_rate * np.dot(M - np.dot(u,np.transpose(v)), v)
+        #print "u ",u    
+    for t in range(0, 100):
+        v = v + learning_rate * np.dot(M - np.dot(u, np.transpose(v)), u)
+        #print "v ", v
+    result = frobenius_norm(M, np.dot(u,np.transpose(v)))
+    print result
+    if abs(result-last_distance) < 0.001:
+        print "converged"
+        converged = True
+    last_distance = result
+    distance.append(result)
+print distance
 
 #Stochastic gradient descent(SGD)
 #Apply random permutation to the data
@@ -186,18 +199,18 @@ distance = []
 #     distance.append(result)
 # print distance
 
-def length(data):
-    sum = 0.0
-    for i in data:
-        sum += i * i
-    return math.sqrt(sum)
+# def length(data):
+#     sum = 0.0
+#     for i in data:
+#         sum += i * i
+#     return math.sqrt(sum)
 
-# Normalize all data
-for data in data_set_done:
-    print length(data)
+# # Normalize all data
+# for data in data_set_done:
+#     print length(data)
 
-d = len(data_set_done[0]) #shape
-theta = 2
-s = np.random.gamma(d, 2, d)
+# d = len(data_set_done[0]) #shape
+# theta = 2
+# s = np.random.gamma(d, 2, d)
 
-print s
+# print s

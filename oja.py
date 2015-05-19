@@ -144,7 +144,7 @@ def testFunction(v):
 		#print "dotProduct is ", dotProduct
 		dotProduct = dotProduct * v # dotproduct is a column major vector
 		#print "dotProduct is ", dotProduct
-		total = total + distance(tmp,dotProduct)
+		total = total + distance(tmp,dotProduct)**2
 	return total
 
 '''
@@ -176,6 +176,36 @@ a = np.dot(np.array([data_set_done[0]]),np.transpose(np.array([data_set_done[0]]
 #print data_set_done[0] 
 #print np.multiply(a,data_set_done[0]) # result is a vector
 
+# test result function
+def frobenius_norm(M1, M2):
+    #print M1
+    #print M2
+    total = 0.0
+    for a,b in zip(M1, M2):
+        for c, d in zip(a, b):
+            total += (c - d)*(c - d)
+    return total
+
+# data set size covariance matrix M
+N = len(data_set_done)
+M = np.array(data_set_done[0]) * np.transpose(np.array(data_set_done[0]))
+for i in range(1, len(data_set_done)):
+    M = M + (np.array([data_set_done[i]]) * np.transpose(np.array([data_set_done[i]])))
+print "M is "
+print M
+
+U, s, V = np.linalg.svd(M, full_matrices=True)
+print "U, ", U
+print "s, " ,s
+print "V, ", V
+print np.transpose(np.array([U[0]]))
+U = np.transpose(U)
+V = np.transpose(V)
+# T = s[0]* np.dot(np.array([U[0]]),np.transpose(np.array([V[0]])))
+print V
+#print T
+# print frobenius_norm(M, T)
+print testFunction(np.transpose(np.array([V[0]])))
 dis = 0.0
 loop = 0.0
 # test convergence
@@ -185,46 +215,43 @@ v1 = np.transpose(v1) # let v1 becomese a column major vector
 prev_v = v1
 testResult = []
 tPoint = []
+index = 1
 # stil have the infinite problem, need to normalize feature
 while True:
-	loop = loop + 1
-	testResult = []
-	tPoint = []
-	#print "loop is ", loop
-	for i in range(0, len(data_set_done)/2):
-		learning_rate = 1.0/math.sqrt(i+1)
-		tmp = data_set_done[i] # convert to right form
-		tmp = np.array([tmp])
-		#print "dataset ", tmp # array([[]])
-		#print "tranpose xt is ", np.transpose(tmp)
-		#print "dot result ", np.dot(np.transpose(tmp),tmp)
-		b = np.dot(np.transpose(tmp),tmp)
-		b = np.dot(b,v1) # result will be a 110 * 1 vector
-		#print "times learning plus ", tmp + learning_rate * b
-		v1 = v1 + learning_rate * b 
-		#print "v1 only sum ", v1
-		v1 = normalizeVector(v1)
-		if i % 400 == 0:
-			tPoint.append(i)
-			test = testFunction(v1)
-			print "test " ,test
-			testResult.append(test)
-		#print "v1 local", v1
-	#print "global v1, ", v1
-	#if loop > 1:
-	# right now use distance to test convergence
-	#plt.plot(tPoint,testResult)
-	print testResult
-	plt.plot(tPoint, testResult, '-')
-	#plt.axis([0, len(data_set_done), 0, 5000])
-	plt.ylabel('test function result')
-	plt.show()
-	print "global v1, ", v1
-	dis = distance(prev_v,v1)
-	print "distance ", dis
-	if dis <= 0.001:
-			break
-	prev_v = v1
+    loop = loop + 1
+    testResult = []
+    tPoint = []
+    #print "loop is ", loop
+    for i in range(0, len(data_set_done)):
+        learning_rate = 1.0/math.sqrt(index)
+        index = index + 1
+        tmp = data_set_done[i] # convert to right form
+        tmp = np.array([tmp])
+        #print "dataset ", tmp # array([[]])
+        #print "tranpose xt is ", np.transpose(tmp)
+        #print "dot result ", np.dot(np.transpose(tmp),tmp)
+        b = np.dot(np.transpose(tmp),tmp)
+        b = np.dot(b,v1) # result will be a 110 * 1 vector
+        #print "times learning plus ", tmp + learning_rate * b
+        v1 = v1 + learning_rate * b 
+        #print "v1 only sum ", v1
+        v1 = normalizeVector(v1)
+        if i % 400 == 0:
+            tPoint.append(i)
+            test = testFunction(v1)
+            print "test " ,test
+            testResult.append(test)
+    print testResult
+    plt.plot(tPoint, testResult, '-')
+    #plt.axis([0, len(data_set_done), 0, 5000])
+    plt.ylabel('test function result')
+    plt.show()
+    print "global v1, ", v1
+    dis = distance(prev_v,v1)
+    print "distance ", dis
+    if dis <= 0.001:
+        break
+    prev_v = v1
 	
 
 
