@@ -147,6 +147,7 @@ def testFunction(v):
 		total = total + distance(tmp,dotProduct)**2
 	return total
 
+
 '''
     Implement Oja's rule to find the top k pricipal components of the dataset
 '''
@@ -166,7 +167,7 @@ for i in range(0,d):
     prev_v.append(0.0)
 
 s = math.sqrt(s)
-#print "s is ", s
+
 # normalize v1 
 for i in range(0,d):
     v1[i] = v1[i] * 1.0/ s
@@ -216,6 +217,7 @@ prev_v = v1
 testResult = []
 tPoint = []
 index = 1
+
 # stil have the infinite problem, need to normalize feature
 while True:
     loop = loop + 1
@@ -223,6 +225,7 @@ while True:
     tPoint = []
     #print "loop is ", loop
     for i in range(0, len(data_set_done)):
+        # fix the leanring rate problem
         learning_rate = 1.0/math.sqrt(index)
         index = index + 1
         tmp = data_set_done[i] # convert to right form
@@ -253,9 +256,3 @@ while True:
         break
     prev_v = v1
 	
-
-
-
-
-
-
